@@ -8,5 +8,5 @@ parserOptions:
   sourceType: module
 rules: {
   'no-console': 'off',
-  "parser": "babel-eslint"
+  "parser": "0"
 }
