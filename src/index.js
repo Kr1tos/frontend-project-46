@@ -1,52 +1,48 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import { cwd } from 'process';
 import _ from 'lodash';
+import parse from './parsers.js';
 
-// Define the getStage function as a separate helper function
-const getStage = (data1, data2, key) => {
-  const value1 = data1[key];
-  const value2 = data2[key];
-  if (!Object.hasOwn(data1, key)) {
-    return `+ ${key}: ${value2}`;
-  }
-  if (!Object.hasOwn(data2, key)) {
-    return `- ${key}: ${value1}`;
-  }
-  if (value1 === value2) {
-    return `  ${key}: ${value2}`;
-  }
-  return `- ${key}: ${value1}\n + ${key}: ${value2}`;
-};
-
-// Define the gendiff function as a separate helper function
-const gendiff = (data1, data2) => {
+const buildDiff = (data1, data2) => {
   const keys = _.sortBy(_.union(Object.keys(data1), Object.keys(data2)));
-  const diff = keys.map((key) => getStage(data1, data2, key)).join('\n');
-  return `{\n${diff}\n}`;
+
+  const getDiffLine = (key) => {
+    const value1 = data1[key];
+    const value2 = data2[key];
+
+    if (!Object.hasOwn(data1, key)) {
+      return `+ ${key}: ${value2}`;
+    }
+
+    if (!Object.hasOwn(data2, key)) {
+      return `- ${key}: ${value1}`;
+    }
+
+    if (value1 === value2) {
+      return `  ${key}: ${value2}`;
+    }
+
+    return `- ${key}: ${value1}\n + ${key}: ${value2}`;
+  };
+
+  const diff = keys.reduce((acc, key) => {
+    const stage = getDiffLine(key);
+    return `${acc}\n ${stage}`;
+  }, '');
+  return `{${diff}\n}`;
 };
 
-// Define the json function as a separate helper function
-const json = (filepath1, filepath2) => {
-  const file1 = JSON.parse(readFileSync(path.resolve(cwd(), filepath1)));
-  const file2 = JSON.parse(readFileSync(path.resolve(cwd(), filepath2)));
-  const result = gendiff(file1, file2);
-  return result;
-};
-
-// Define the yaml function as a separate helper function
-const yaml = '';
-
-// Define the main function as a separate function
 const genDiff = (filepath1, filepath2) => {
-  const extension = path.extname(filepath1);
-  if (extension === '.json') {
-    return json(filepath1, filepath2);
-  }
-  if (extension === '.yaml' || extension === '.yml') {
-    return yaml(filepath1, filepath2);
-  }
-  throw new Error(`Unsupported file extension: ${extension}`);
+  const absolutePath1 = path.resolve(process.cwd(), filepath1);
+  const absolutePath2 = path.resolve(process.cwd(), filepath2);
+
+  const ext1 = path.extname(absolutePath1);
+  const ext2 = path.extname(absolutePath2);
+
+  const data1 = parse(readFileSync(absolutePath1), ext1);
+  const data2 = parse(readFileSync(absolutePath2), ext2);
+
+  return buildDiff(data1, data2);
 };
 
 export default genDiff;
