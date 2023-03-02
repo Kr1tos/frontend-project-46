@@ -22,8 +22,12 @@
   "homepage": "https://github.com/Kr1tos/frontend-project-46#readme",
   "dependencies": {
     "commander": "^10.0.0",
+    "fs": "^0.0.1-security",
     "jest": "^29.4.3",
-    "lodash": "^4.17.21"
+    "js-yaml": "^4.1.0",
+    "lodash": "^4.17.21",
+    "path": "^0.12.7",
+    "process": "^0.11.10"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
