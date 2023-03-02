@@ -9,13 +9,14 @@ const getStage = (data1, data2, key) => {
   const value2 = data2[key];
   if (!Object.hasOwn(data1, key)) {
     return `+ ${key}: ${value2}`;
-  } else if (!Object.hasOwn(data2, key)) {
-    return `- ${key}: ${value1}`;
-  } else if (value1 === value2) {
-    return `  ${key}: ${value2}`;
-  } else {
-    return `- ${key}: ${value1}\n + ${key}: ${value2}`;
   }
+  if (!Object.hasOwn(data2, key)) {
+    return `- ${key}: ${value1}`;
+  }
+  if (value1 === value2) {
+    return `  ${key}: ${value2}`;
+  }
+  return `- ${key}: ${value1}\n + ${key}: ${value2}`;
 };
 
 // Define the gendiff function as a separate helper function
@@ -41,11 +42,11 @@ const genDiff = (filepath1, filepath2) => {
   const extension = path.extname(filepath1);
   if (extension === '.json') {
     return json(filepath1, filepath2);
-  } else if (extension === '.yaml' || extension === '.yml') {
-    return yaml(filepath1, filepath2);
-  } else {
-    throw new Error(`Unsupported file extension: ${extension}`);
   }
+  if (extension === '.yaml' || extension === '.yml') {
+    return yaml(filepath1, filepath2);
+  }
+  throw new Error(`Unsupported file extension: ${extension}`);
 };
 
 export default genDiff;

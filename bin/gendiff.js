@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-
-import { Command } from "commander";
+import { Command } from 'commander';
 import compare from '../src/index.js';
 
 const program = new Command();
